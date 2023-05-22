@@ -1,27 +1,57 @@
 import React, { useState } from "react";
-import TodoBoard from "./components/TodoBoard";
+import { useSelector, useDispatch } from "react-redux";
+import { addTodo, toggleTodo, removeTodo } from "./features/todos";
 
-const App = () => {
+function App() {
   const [inputValue, setInputValue] = useState("");
-  const [todoList, setTodoList] = useState([]);
+  const todos = useSelector((state) => state.todos);
+  const dispatch = useDispatch();
 
-  const addItem = () => {
-    setTodoList([...todoList, inputValue]);
+  const handleInputChange = (e) => {
+    setInputValue(e.target.value);
+  };
+
+  const handleAddTodo = () => {
+    if (inputValue.trim()) {
+      dispatch(addTodo(inputValue));
+      setInputValue("");
+    }
+  };
+
+  const handleToggleTodo = (id) => {
+    dispatch(toggleTodo(id));
+  };
+
+  const handleRemoveTodo = (id) => {
+    dispatch(removeTodo(id));
   };
 
   return (
     <div>
-      <input
-        type="text"
-        value={inputValue}
-        onChange={(e) => {
-          setInputValue(e.target.value);
-        }}
-      />
-      <button onClick={addItem}>추가</button>
-      <TodoBoard todoList={todoList} />
+      <h1>ToDo List</h1>
+      <input type="text" value={inputValue} onChange={handleInputChange} />
+      <button onClick={handleAddTodo}>Add</button>
+      <ul>
+        {todos.map((todo) => (
+          <li key={todo.id}>
+            <input
+              type="checkbox"
+              checked={todo.completed}
+              onChange={() => handleToggleTodo(todo.id)}
+            />
+            <span
+              style={{
+                textDecoration: todo.completed ? "line-through" : "none",
+              }}
+            >
+              {todo.text}
+            </span>
+            <button onClick={() => handleRemoveTodo(todo.id)}>Remove</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
-};
+}
 
 export default App;
